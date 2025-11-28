@@ -1,0 +1,579 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// MITARBEITER
+// ============================================
+model Mitarbeiter {
+  id              String   @id @default(cuid())
+  personalnummer  String   @unique
+  vorname         String
+  nachname        String
+  email           String?
+  telefon         String?
+  rolle           String   @default("mechaniker") // mechaniker, meister, buero, azubi
+  stundensatz     Float    @default(0)            // Interner Stundensatz
+  aktiv           Boolean  @default(true)
+  eintrittsdatum  DateTime @default(now())
+  austrittsdatum  DateTime?
+  notizen         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  arbeitszeiten     Arbeitszeit[]
+  vorgaenge         VorgangMitarbeiter[]
+  kalenderEintraege KalenderEintrag[]
+  kapazitaeten      MitarbeiterKapazitaet[]
+  abwesenheiten     Abwesenheit[]
+  reifenwechsel     Reifenwechsel[]
+}
+
+// ============================================
+// KUNDE
+// ============================================
+model Kunde {
+  id          String   @id @default(cuid())
+  kundennummer String?  @unique
+  anrede      String?
+  vorname     String
+  nachname    String
+  firma       String?
+  strasse     String
+  hausnummer  String
+  plz         String
+  ort         String
+  telefon     String?
+  mobil       String?
+  email       String?
+  notizen     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  fahrzeuge         Fahrzeug[]
+  rechnungen        Rechnung[]
+  vorgaenge         Vorgang[]
+  erinnerungen      Erinnerung[]
+  kostenvoranschlaege Kostenvoranschlag[]
+  reifeneinlagerungen Reifeneinlagerung[]
+}
+
+// ============================================
+// FAHRZEUG
+// ============================================
+model Fahrzeug {
+  id              String   @id @default(cuid())
+  kennzeichen     String
+  marke           String
+  modell          String
+  baujahr         Int?
+  fahrgestellnr   String?  @unique // Fahrzeug-Identnummer (VIN)
+  erstzulassung   DateTime?
+  naechsteHU      DateTime? // Nächste Hauptuntersuchung
+  naechsteAU      DateTime? // Nächste Abgasuntersuchung
+  kilometerstand  Int?
+  farbe           String?
+  kraftstoff      String?  // Benzin, Diesel, Elektro, Hybrid
+  leistungKW      Int?     // Motorleistung in kW
+  hubraum         Int?     // Hubraum in ccm
+  notizen         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  kundeId         String
+  kunde           Kunde    @relation(fields: [kundeId], references: [id], onDelete: Cascade)
+
+  rechnungen          Rechnung[]
+  kalenderEintraege   KalenderEintrag[]
+  vorgaenge           Vorgang[]
+  wartungsplaene      Wartungsplan[]
+  erinnerungen        Erinnerung[]
+  kostenvoranschlaege Kostenvoranschlag[]
+  reifeneinlagerungen Reifeneinlagerung[]
+}
+
+// ============================================
+// RECHNUNG
+// ============================================
+model Rechnung {
+  id              String   @id @default(cuid())
+  rechnungsnummer String   @unique
+  datum           DateTime @default(now())
+  faelligBis      DateTime?
+  status          String   @default("offen") // offen, bezahlt, storniert, mahnung
+  zahlungsart     String?  // bar, ueberweisung, ec, kreditkarte
+  bezahltAm       DateTime?
+  notizen         String?
+
+  // Beträge
+  nettoGesamt     Float    @default(0)
+  mwstSatz        Float    @default(19)
+  mwstBetrag      Float    @default(0)
+  bruttoGesamt    Float    @default(0)
+  rabattProzent   Float    @default(0)
+  rabattBetrag    Float    @default(0)
+
+  // E-Mail Tracking
+  emailVersendetAm DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  kundeId         String
+  kunde           Kunde    @relation(fields: [kundeId], references: [id], onDelete: Cascade)
+
+  fahrzeugId      String?
+  fahrzeug        Fahrzeug? @relation(fields: [fahrzeugId], references: [id], onDelete: SetNull)
+
+  positionen      RechnungsPosition[]
+  vorgaenge       RechnungVorgang[]
+}
+
+model RechnungsPosition {
+  id          String   @id @default(cuid())
+  position    Int      // Reihenfolge
+  typ         String   @default("arbeit") // arbeit, ersatzteil, sonstiges
+  beschreibung String
+  menge       Float    @default(1)
+  einheit     String   @default("Stk") // Stk, Std, km, etc.
+  einzelpreis Float
+  gesamtpreis Float
+
+  rechnungId  String
+  rechnung    Rechnung @relation(fields: [rechnungId], references: [id], onDelete: Cascade)
+
+  ersatzteilId String?
+  ersatzteil   Ersatzteil? @relation(fields: [ersatzteilId], references: [id], onDelete: SetNull)
+}
+
+// ============================================
+// KALENDER
+// ============================================
+model KalenderEintrag {
+  id          String   @id @default(cuid())
+  titel       String
+  beschreibung String?
+  startDatum  DateTime
+  endDatum    DateTime
+  ganztaegig  Boolean  @default(false)
+  typ         String   @default("rueckgabe") // rueckgabe, termin, erinnerung, hu_faellig, wartung
+  farbe       String?  // Hex-Farbcode für Kalender-Darstellung
+  erledigt    Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  fahrzeugId  String?
+  fahrzeug    Fahrzeug? @relation(fields: [fahrzeugId], references: [id], onDelete: SetNull)
+
+  vorgangId   String?
+  vorgang     Vorgang?  @relation(fields: [vorgangId], references: [id], onDelete: SetNull)
+
+  mitarbeiterId String?
+  mitarbeiter   Mitarbeiter? @relation(fields: [mitarbeiterId], references: [id], onDelete: SetNull)
+}
+
+// ============================================
+// VORGANG (Reparatur/Service-Auftrag)
+// ============================================
+model Vorgang {
+  id              String   @id @default(cuid())
+  vorgangsnummer  String   @unique
+  titel           String
+  beschreibung    String?
+  typ             String   @default("reparatur") // reparatur, wartung, inspektion, hu_au, reifenwechsel, sonstiges
+  status          String   @default("offen") // offen, in_bearbeitung, wartet_auf_teile, abgeschlossen, abgerechnet, abgeholt
+  prioritaet      String   @default("normal") // niedrig, normal, hoch, dringend
+
+  // Datum
+  eingang         DateTime @default(now())  // Wann kam das Fahrzeug
+  geplanteAbholung DateTime?                // Wann soll der Kunde das Fahrzeug abholen
+  fertigstellung  DateTime?                 // Wann war die Arbeit fertig
+  abholung        DateTime?                 // Wann hat der Kunde abgeholt
+
+  // Kilometerstand
+  kmStandEingang  Int?
+  kmStandAusgang  Int?
+
+  // Kostenvoranschlag
+  kostenvoranschlag Float?
+  kvAkzeptiert      Boolean @default(false)
+
+  notizen         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Beziehungen
+  kundeId         String
+  kunde           Kunde    @relation(fields: [kundeId], references: [id], onDelete: Cascade)
+
+  fahrzeugId      String
+  fahrzeug        Fahrzeug @relation(fields: [fahrzeugId], references: [id], onDelete: Cascade)
+
+  arbeiten            VorgangsArbeit[]
+  rechnungen          RechnungVorgang[]
+  mitarbeiter         VorgangMitarbeiter[]
+  arbeitszeiten       Arbeitszeit[]
+  ersatzteile         VorgangsErsatzteil[]
+  kalenderEintraege   KalenderEintrag[]
+  arbeitsplatzBelegungen ArbeitsplatzBelegung[]
+  kostenvoranschlaege Kostenvoranschlag[]
+}
+
+// Einzelne Arbeiten/Positionen innerhalb eines Vorgangs
+model VorgangsArbeit {
+  id              String   @id @default(cuid())
+  position        Int      // Reihenfolge
+  beschreibung    String
+  status          String   @default("offen") // offen, in_arbeit, erledigt
+
+  // Preiskalkulation
+  menge           Float    @default(1)
+  einheit         String   @default("Stk")
+  einzelpreis     Float    @default(0)
+  gesamtpreis     Float    @default(0)
+
+  // Zeiterfassung
+  geschaetzteZeit Float?   // Geschätzte Zeit in Stunden
+  tatsaechlicheZeit Float? // Tatsächliche Zeit in Stunden
+
+  notizen         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  vorgangId       String
+  vorgang         Vorgang  @relation(fields: [vorgangId], references: [id], onDelete: Cascade)
+}
+
+// Verknüpfungstabelle: Mehrere Vorgänge können zu einer Rechnung gehören
+model RechnungVorgang {
+  id          String   @id @default(cuid())
+
+  rechnungId  String
+  rechnung    Rechnung @relation(fields: [rechnungId], references: [id], onDelete: Cascade)
+
+  vorgangId   String
+  vorgang     Vorgang  @relation(fields: [vorgangId], references: [id], onDelete: Cascade)
+
+  @@unique([rechnungId, vorgangId])
+}
+
+// ============================================
+// MITARBEITER-ZUORDNUNG
+// ============================================
+// Verknüpfungstabelle: Mehrere Mitarbeiter können an einem Vorgang arbeiten
+model VorgangMitarbeiter {
+  id            String   @id @default(cuid())
+  rolle         String   @default("bearbeiter") // bearbeiter, verantwortlich, unterstuetzung
+  zugewiesenAm  DateTime @default(now())
+
+  vorgangId     String
+  vorgang       Vorgang     @relation(fields: [vorgangId], references: [id], onDelete: Cascade)
+
+  mitarbeiterId String
+  mitarbeiter   Mitarbeiter @relation(fields: [mitarbeiterId], references: [id], onDelete: Cascade)
+
+  @@unique([vorgangId, mitarbeiterId])
+}
+
+// ============================================
+// ARBEITSZEIT
+// ============================================
+model Arbeitszeit {
+  id          String   @id @default(cuid())
+  datum       DateTime @default(now())
+  startzeit   DateTime
+  endzeit     DateTime?
+  pause       Float    @default(0)  // Pause in Minuten
+  dauer       Float?                // Berechnete Dauer in Stunden
+  beschreibung String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  mitarbeiterId String
+  mitarbeiter   Mitarbeiter @relation(fields: [mitarbeiterId], references: [id], onDelete: Cascade)
+
+  vorgangId   String?
+  vorgang     Vorgang?  @relation(fields: [vorgangId], references: [id], onDelete: SetNull)
+}
+
+// ============================================
+// ERSATZTEILE / LAGER
+// ============================================
+model Ersatzteil {
+  id              String   @id @default(cuid())
+  artikelnummer   String   @unique
+  bezeichnung     String
+  beschreibung    String?
+  kategorie       String?  // Motor, Bremsen, Fahrwerk, Elektrik, etc.
+  hersteller      String?
+
+  // Preis
+  einkaufspreis   Float    @default(0)
+  verkaufspreis   Float    @default(0)
+
+  // Lagerbestand
+  bestand         Int      @default(0)
+  mindestbestand  Int      @default(0)
+  lagerort        String?
+
+  // Fahrzeugkompatibilität (optional)
+  fahrzeugMarken  String?  // Komma-separierte Liste
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  vorgangsErsatzteile VorgangsErsatzteil[]
+  rechnungsPositionen RechnungsPosition[]
+}
+
+// Verknüpfungstabelle: Ersatzteile die in einem Vorgang verwendet wurden
+model VorgangsErsatzteil {
+  id          String   @id @default(cuid())
+  menge       Float    @default(1)
+  einzelpreis Float              // Preis zum Zeitpunkt der Verwendung
+  gesamtpreis Float
+
+  createdAt   DateTime @default(now())
+
+  vorgangId   String
+  vorgang     Vorgang    @relation(fields: [vorgangId], references: [id], onDelete: Cascade)
+
+  ersatzteilId String
+  ersatzteil   Ersatzteil @relation(fields: [ersatzteilId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// WERKSTATTAUSLASTUNG & KAPAZITÄTSPLANUNG
+// ============================================
+
+// Arbeitsplatz/Hebebühne in der Werkstatt
+model Arbeitsplatz {
+  id          String   @id @default(cuid())
+  bezeichnung String           // z.B. "Hebebühne 1", "Diagnoseplatz"
+  typ         String   @default("hebebuehne") // hebebuehne, grube, diagnoseplatz, lackierkabine
+  aktiv       Boolean  @default(true)
+  notizen     String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  belegungen  ArbeitsplatzBelegung[]
+}
+
+// Belegung eines Arbeitsplatzes
+model ArbeitsplatzBelegung {
+  id          String   @id @default(cuid())
+  startzeit   DateTime
+  endzeit     DateTime?
+  status      String   @default("geplant") // geplant, aktiv, abgeschlossen
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  arbeitsplatzId String
+  arbeitsplatz   Arbeitsplatz @relation(fields: [arbeitsplatzId], references: [id], onDelete: Cascade)
+
+  vorgangId   String?
+  vorgang     Vorgang? @relation(fields: [vorgangId], references: [id], onDelete: SetNull)
+}
+
+// Kapazität pro Mitarbeiter (Arbeitsstunden pro Tag/Woche)
+model MitarbeiterKapazitaet {
+  id                String   @id @default(cuid())
+  wochentag         Int              // 0=Sonntag, 1=Montag, ..., 6=Samstag
+  arbeitsbeginn     String           // z.B. "08:00"
+  arbeitsende       String           // z.B. "17:00"
+  pauseMinuten      Int      @default(60)
+  verfuegbar        Boolean  @default(true)
+
+  mitarbeiterId     String
+  mitarbeiter       Mitarbeiter @relation(fields: [mitarbeiterId], references: [id], onDelete: Cascade)
+
+  @@unique([mitarbeiterId, wochentag])
+}
+
+// Urlaub/Abwesenheit
+model Abwesenheit {
+  id          String   @id @default(cuid())
+  typ         String   @default("urlaub") // urlaub, krank, fortbildung, sonstiges
+  von         DateTime
+  bis         DateTime
+  ganztaegig  Boolean  @default(true)
+  genehmigt   Boolean  @default(false)
+  notizen     String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  mitarbeiterId String
+  mitarbeiter   Mitarbeiter @relation(fields: [mitarbeiterId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// KUNDENFAHRZEUG-HISTORIE & ERINNERUNGEN
+// ============================================
+
+// Wartungsplan für ein Fahrzeug
+model Wartungsplan {
+  id              String   @id @default(cuid())
+  bezeichnung     String           // z.B. "Ölwechsel", "Zahnriemen"
+  intervallKm     Int?             // Alle X Kilometer
+  intervallMonate Int?             // Alle X Monate
+  letzterService  DateTime?
+  letzterKmStand  Int?
+  naechsterService DateTime?
+  naechsterKmStand Int?
+  notizen         String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  fahrzeugId      String
+  fahrzeug        Fahrzeug @relation(fields: [fahrzeugId], references: [id], onDelete: Cascade)
+}
+
+// Automatische Erinnerungen
+model Erinnerung {
+  id              String   @id @default(cuid())
+  typ             String           // hu_faellig, au_faellig, service_faellig, sonstiges
+  titel           String
+  beschreibung    String?
+  faelligAm       DateTime
+  erinnerungAm    DateTime?        // Wann soll erinnert werden (z.B. 2 Wochen vorher)
+  status          String   @default("aktiv") // aktiv, gesendet, erledigt, ignoriert
+
+  // E-Mail Versand
+  emailGesendetAm DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  fahrzeugId      String?
+  fahrzeug        Fahrzeug? @relation(fields: [fahrzeugId], references: [id], onDelete: Cascade)
+
+  kundeId         String
+  kunde           Kunde    @relation(fields: [kundeId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// KOSTENVORANSCHLAG-WORKFLOW
+// ============================================
+
+model Kostenvoranschlag {
+  id              String   @id @default(cuid())
+  kvNummer        String   @unique
+  titel           String
+  beschreibung    String?
+  status          String   @default("entwurf") // entwurf, gesendet, akzeptiert, abgelehnt, abgelaufen
+  gueltigBis      DateTime?
+
+  // Beträge
+  nettoGesamt     Float    @default(0)
+  mwstSatz        Float    @default(19)
+  mwstBetrag      Float    @default(0)
+  bruttoGesamt    Float    @default(0)
+
+  // Kundenreaktion
+  akzeptiertAm    DateTime?
+  abgelehntAm     DateTime?
+  ablehnungsgrund String?
+
+  // E-Mail Tracking
+  emailGesendetAm DateTime?
+
+  notizen         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  kundeId         String
+  kunde           Kunde    @relation(fields: [kundeId], references: [id], onDelete: Cascade)
+
+  fahrzeugId      String?
+  fahrzeug        Fahrzeug? @relation(fields: [fahrzeugId], references: [id], onDelete: SetNull)
+
+  // Optionale Verknüpfung zu bestehendem Vorgang
+  vorgangId       String?
+  vorgang         Vorgang?  @relation(fields: [vorgangId], references: [id], onDelete: SetNull)
+
+  positionen      KVPosition[]
+}
+
+// Positionen im Kostenvoranschlag
+model KVPosition {
+  id              String   @id @default(cuid())
+  position        Int              // Reihenfolge
+  typ             String   @default("arbeit") // arbeit, ersatzteil, sonstiges
+  beschreibung    String
+  menge           Float    @default(1)
+  einheit         String   @default("Stk")
+  einzelpreis     Float
+  gesamtpreis     Float
+
+  kostenvoranschlagId String
+  kostenvoranschlag   Kostenvoranschlag @relation(fields: [kostenvoranschlagId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// REIFENEINLAGERUNG
+// ============================================
+
+model Reifeneinlagerung {
+  id              String   @id @default(cuid())
+  lagerplatznummer String  @unique      // z.B. "R-001-A"
+  reifenTyp       String               // sommer, winter, ganzjahres
+  hersteller      String?
+  modell          String?
+  groesse         String?              // z.B. "225/45 R17"
+  dot             String?              // Herstellungsdatum (DOT-Nummer)
+  profiltiefe     Float?               // in mm
+  zustand         String   @default("gut") // gut, mittel, schlecht, ersetzen
+
+  // Einlagerungsdaten
+  eingelagertAm   DateTime @default(now())
+  ausgelagertAm   DateTime?
+  naechsterWechsel DateTime?           // Geplanter Wechseltermin
+
+  // Reifenanzahl (normalerweise 4)
+  anzahl          Int      @default(4)
+
+  // Felgen dabei?
+  mitFelgen       Boolean  @default(true)
+  felgenTyp       String?              // stahl, alu
+
+  notizen         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  fahrzeugId      String
+  fahrzeug        Fahrzeug @relation(fields: [fahrzeugId], references: [id], onDelete: Cascade)
+
+  kundeId         String
+  kunde           Kunde    @relation(fields: [kundeId], references: [id], onDelete: Cascade)
+
+  wechselHistorie Reifenwechsel[]
+}
+
+// Historie der Reifenwechsel
+model Reifenwechsel {
+  id              String   @id @default(cuid())
+  datum           DateTime @default(now())
+  typ             String               // einlagern, auslagern, wechsel
+  profiltiefeBeiWechsel Float?
+  kmStand         Int?
+  notizen         String?
+
+  createdAt       DateTime @default(now())
+
+  reifeneinlagerungId String
+  reifeneinlagerung   Reifeneinlagerung @relation(fields: [reifeneinlagerungId], references: [id], onDelete: Cascade)
+
+  mitarbeiterId   String?
+  mitarbeiter     Mitarbeiter? @relation(fields: [mitarbeiterId], references: [id], onDelete: SetNull)
+}

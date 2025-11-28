@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(npm install)",
+      "Bash(npx prisma migrate:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(timeout:*)",
+      "Bash(npx prisma db seed:*)",
+      "Bash(npx prisma validate:*)",
+      "Bash(npx prisma db push:*)",
+      "Bash(npx prisma db execute:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: KFZ-Meisterwerkstatt Verwaltungssystem\n\nFeatures:\n- Dashboard mit Statistiken und Warnungen\n- Kundenverwaltung mit Kontaktdaten\n- Fahrzeugverwaltung mit HU/AU-Terminen\n- Auftragsverwaltung mit Status-Tracking\n- Mitarbeiterverwaltung mit Rollen und Stundensätzen\n- Rechnungserstellung mit professionellem PDF-Design (IBAN, Skonto)\n- Kostenvoranschläge mit Gültigkeitsdatum und Status-Workflow\n- Ersatzteileverwaltung mit Lagerbestand-Warnungen\n- Reifeneinlagerung mit Wechseltermin-Erinnerungen\n- Kalender für Termine und Fahrzeugrückgaben\n\nTech-Stack:\n- Next.js 14 (App Router)\n- Prisma ORM mit SQLite\n- Tailwind CSS + shadcn/ui\n- TypeScript\n- @react-pdf/renderer für PDF-Generierung\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

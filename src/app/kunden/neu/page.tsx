@@ -1,0 +1,10 @@
+import KundeForm from "@/components/KundeForm";
+
+export default function NeuerKundePage() {
+  return (
+    <div>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Neuer Kunde</h1>
+      <KundeForm />
+    </div>
+  );
+}
