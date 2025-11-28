@@ -75,19 +75,19 @@ export function Sidebar() {
     <TooltipProvider delayDuration={0}>
       <div
         className={cn(
-          "relative flex flex-col border-r bg-card transition-all duration-300",
+          "relative flex flex-col border-r border-border/60 bg-card/80 backdrop-blur-sm transition-all duration-300",
           collapsed ? "w-16" : "w-64"
         )}
       >
         {/* Logo */}
-        <div className="flex h-16 items-center border-b px-4">
+        <div className="flex h-16 items-center border-b border-border/60 px-4">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
               <Wrench className="h-5 w-5" />
             </div>
             {!collapsed && (
               <div className="flex flex-col">
-                <span className="text-sm font-semibold">KFZ Meisterwerkstatt</span>
+                <span className="text-sm font-semibold text-foreground">KFZ Meisterwerkstatt</span>
                 <span className="text-xs text-muted-foreground">Verwaltung</span>
               </div>
             )}
@@ -128,10 +128,10 @@ export function Sidebar() {
                       <Link
                         href={item.href}
                         className={cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                           isActive
-                            ? "bg-primary text-primary-foreground"
-                            : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "text-muted-foreground hover:bg-accent/80 hover:text-foreground"
                         )}
                       >
                         <Icon className="h-4 w-4 shrink-0" />
@@ -160,10 +160,10 @@ export function Sidebar() {
         </ScrollArea>
 
         {/* Footer */}
-        <div className="border-t p-4">
+        <div className="border-t border-border/60 p-4">
           {!collapsed ? (
             <div className="text-xs text-muted-foreground">
-              <p className="font-medium">KFZ Meisterwerkstatt</p>
+              <p className="font-medium text-foreground/80">KFZ Meisterwerkstatt</p>
               <p>Musterstraße 123</p>
               <p>12345 Musterstadt</p>
             </div>

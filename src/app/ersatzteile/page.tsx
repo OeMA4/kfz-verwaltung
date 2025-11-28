@@ -46,14 +46,14 @@ async function getErsatzteile() {
 }
 
 const kategorieConfig: Record<string, { label: string; color: string }> = {
-  motor: { label: "Motor", color: "bg-red-100 text-red-800" },
-  bremsen: { label: "Bremsen", color: "bg-orange-100 text-orange-800" },
-  fahrwerk: { label: "Fahrwerk", color: "bg-yellow-100 text-yellow-800" },
-  elektrik: { label: "Elektrik", color: "bg-blue-100 text-blue-800" },
-  karosserie: { label: "Karosserie", color: "bg-green-100 text-green-800" },
-  oele: { label: "Öle & Flüssigkeiten", color: "bg-purple-100 text-purple-800" },
-  filter: { label: "Filter", color: "bg-cyan-100 text-cyan-800" },
-  sonstiges: { label: "Sonstiges", color: "bg-gray-100 text-gray-800" },
+  motor: { label: "Motor", color: "bg-rose-50 text-rose-700 border-rose-200" },
+  bremsen: { label: "Bremsen", color: "bg-amber-50 text-amber-700 border-amber-200" },
+  fahrwerk: { label: "Fahrwerk", color: "bg-yellow-50 text-yellow-700 border-yellow-200" },
+  elektrik: { label: "Elektrik", color: "bg-sky-50 text-sky-700 border-sky-200" },
+  karosserie: { label: "Karosserie", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  oele: { label: "Öle & Flüssigkeiten", color: "bg-violet-50 text-violet-700 border-violet-200" },
+  filter: { label: "Filter", color: "bg-teal-50 text-teal-700 border-teal-200" },
+  sonstiges: { label: "Sonstiges", color: "bg-slate-50 text-slate-700 border-slate-200" },
 }
 
 export default async function ErsatzteilePage() {
@@ -90,8 +90,10 @@ export default async function ErsatzteilePage() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Artikelanzahl</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Artikelanzahl</CardTitle>
+            <div className="rounded-xl bg-slate-100 p-2">
+              <Package className="h-4 w-4 text-slate-600" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{ersatzteile.length}</div>
@@ -102,18 +104,22 @@ export default async function ErsatzteilePage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Lagerwert</CardTitle>
-            <Euro className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Lagerwert</CardTitle>
+            <div className="rounded-xl bg-emerald-50 p-2">
+              <Euro className="h-4 w-4 text-emerald-600" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(gesamtWert)}</div>
             <p className="text-xs text-muted-foreground">Einkaufswert</p>
           </CardContent>
         </Card>
-        <Card className={niedrigerBestand.length > 0 ? "border-warning" : ""}>
+        <Card className={niedrigerBestand.length > 0 ? "border-amber-200" : ""}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Nachbestellen</CardTitle>
-            <AlertTriangle className={`h-4 w-4 ${niedrigerBestand.length > 0 ? "text-warning" : "text-muted-foreground"}`} />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Nachbestellen</CardTitle>
+            <div className={`rounded-xl p-2 ${niedrigerBestand.length > 0 ? "bg-amber-50" : "bg-slate-100"}`}>
+              <AlertTriangle className={`h-4 w-4 ${niedrigerBestand.length > 0 ? "text-amber-600" : "text-slate-600"}`} />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{niedrigerBestand.length}</div>
@@ -124,8 +130,10 @@ export default async function ErsatzteilePage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Ohne Bestand</CardTitle>
-            <TrendingDown className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Ohne Bestand</CardTitle>
+            <div className="rounded-xl bg-red-50 p-2">
+              <TrendingDown className="h-4 w-4 text-red-600" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -138,9 +146,9 @@ export default async function ErsatzteilePage() {
 
       {/* Warnung bei niedrigem Bestand */}
       {niedrigerBestand.length > 0 && (
-        <Card className="border-warning bg-warning/5">
+        <Card className="border-amber-200 bg-amber-50/30">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-warning">
+            <CardTitle className="flex items-center gap-2 text-amber-700">
               <AlertTriangle className="h-5 w-5" />
               Niedriger Bestand - Nachbestellung empfohlen
             </CardTitle>
@@ -148,13 +156,13 @@ export default async function ErsatzteilePage() {
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {niedrigerBestand.slice(0, 6).map((teil) => (
-                <div key={teil.id} className="flex items-center gap-3 rounded-lg border p-3">
+                <div key={teil.id} className="flex items-center gap-3 rounded-xl border border-border/60 bg-card p-4 transition-colors hover:bg-background">
                   <div className="flex-1">
                     <p className="font-medium">{teil.bezeichnung}</p>
                     <p className="text-xs text-muted-foreground">{teil.artikelnummer}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-warning">{teil.bestand}</p>
+                    <p className="font-bold text-amber-600">{teil.bestand}</p>
                     <p className="text-xs text-muted-foreground">von {teil.mindestbestand}</p>
                   </div>
                 </div>
@@ -180,7 +188,7 @@ export default async function ErsatzteilePage() {
           <div className="mb-4 flex items-center gap-2">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Ersatzteil suchen..." className="pl-9" />
+              <Input placeholder="Ersatzteil suchen..." className="pl-9 bg-background/50 border-border/60" />
             </div>
           </div>
 
@@ -230,7 +238,7 @@ export default async function ErsatzteilePage() {
                       </TableCell>
                       <TableCell>
                         {teil.kategorie && (
-                          <Badge className={kategorie.color}>
+                          <Badge variant="outline" className={kategorie.color}>
                             {kategorie.label}
                           </Badge>
                         )}

@@ -20,7 +20,7 @@ interface HeaderProps {
 
 export function Header({ title }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-6">
+    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-border/60 bg-card/80 backdrop-blur-sm px-6">
       {/* Mobile Menu Button */}
       <Button variant="ghost" size="icon" className="lg:hidden">
         <Menu className="h-5 w-5" />
@@ -38,7 +38,7 @@ export function Header({ title }: HeaderProps) {
           <Input
             type="search"
             placeholder="Suchen... (Kunden, Fahrzeuge, Aufträge)"
-            className="pl-9"
+            className="pl-9 bg-background/50 border-border/60 focus:bg-background transition-colors"
           />
         </div>
       </div>

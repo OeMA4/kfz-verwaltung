@@ -136,24 +136,24 @@ export default async function DashboardPage() {
       value: data.kundenCount,
       icon: Users,
       href: "/kunden",
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
+      color: "text-slate-600",
+      bgColor: "bg-slate-100",
     },
     {
       title: "Fahrzeuge",
       value: data.fahrzeugeCount,
       icon: Car,
       href: "/fahrzeuge",
-      color: "text-green-600",
-      bgColor: "bg-green-100",
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50",
     },
     {
       title: "Offene Aufträge",
       value: data.offeneVorgaenge + data.vorgaengeInBearbeitung,
       icon: Wrench,
       href: "/auftraege",
-      color: "text-orange-600",
-      bgColor: "bg-orange-100",
+      color: "text-amber-600",
+      bgColor: "bg-amber-50",
       subtitle: `${data.vorgaengeInBearbeitung} in Bearbeitung`,
     },
     {
@@ -161,8 +161,8 @@ export default async function DashboardPage() {
       value: data.offeneRechnungen,
       icon: FileText,
       href: "/rechnungen",
-      color: "text-purple-600",
-      bgColor: "bg-purple-100",
+      color: "text-violet-600",
+      bgColor: "bg-violet-50",
       subtitle: formatCurrency(data.offeneRechnungenSumme),
     },
   ]
@@ -349,23 +349,23 @@ export default async function DashboardPage() {
                 Keine anstehenden Termine
               </p>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {data.naechsteTermine.map((termin) => (
                   <div
                     key={termin.id}
-                    className="flex items-center gap-4 rounded-lg border p-3"
+                    className="flex items-center gap-4 rounded-xl border border-border/60 bg-background/50 p-4 transition-colors hover:bg-background"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                      <Clock className="h-5 w-5 text-primary" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100">
+                      <Clock className="h-5 w-5 text-slate-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium">{termin.titel}</p>
+                      <p className="font-medium text-foreground">{termin.titel}</p>
                       <p className="text-sm text-muted-foreground">
                         {formatDate(termin.startDatum)}
                         {termin.fahrzeug && ` • ${termin.fahrzeug.kennzeichen}`}
                       </p>
                     </div>
-                    <Badge variant="outline">{termin.typ}</Badge>
+                    <Badge variant="outline" className="border-border/60">{termin.typ}</Badge>
                   </div>
                 ))}
               </div>
@@ -393,23 +393,23 @@ export default async function DashboardPage() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {data.faelligeHU.map((fahrzeug) => (
                   <div
                     key={fahrzeug.id}
-                    className="flex items-center gap-4 rounded-lg border border-warning/50 bg-warning/5 p-3"
+                    className="flex items-center gap-4 rounded-xl border border-amber-200 bg-amber-50/50 p-4 transition-colors hover:bg-amber-50"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-warning/20">
-                      <Car className="h-5 w-5 text-warning" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100">
+                      <Car className="h-5 w-5 text-amber-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium">{fahrzeug.kennzeichen}</p>
+                      <p className="font-medium text-foreground">{fahrzeug.kennzeichen}</p>
                       <p className="text-sm text-muted-foreground">
                         {fahrzeug.kunde.vorname} {fahrzeug.kunde.nachname}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-medium text-warning">
+                      <p className="text-sm font-medium text-amber-600">
                         {fahrzeug.naechsteHU && formatDate(fahrzeug.naechsteHU)}
                       </p>
                       <p className="text-xs text-muted-foreground">HU fällig</p>

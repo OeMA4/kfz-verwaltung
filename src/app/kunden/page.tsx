@@ -58,8 +58,10 @@ export default async function KundenPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Gesamt Kunden</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Gesamt Kunden</CardTitle>
+            <div className="rounded-xl bg-slate-100 p-2">
+              <User className="h-4 w-4 text-slate-600" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{kunden.length}</div>
@@ -67,8 +69,10 @@ export default async function KundenPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Firmenkunden</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Firmenkunden</CardTitle>
+            <div className="rounded-xl bg-violet-50 p-2">
+              <User className="h-4 w-4 text-violet-600" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -78,8 +82,10 @@ export default async function KundenPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Privatkunden</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Privatkunden</CardTitle>
+            <div className="rounded-xl bg-emerald-50 p-2">
+              <User className="h-4 w-4 text-emerald-600" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -102,7 +108,7 @@ export default async function KundenPage() {
           <div className="mb-4 flex items-center gap-2">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Kunde suchen..." className="pl-9" />
+              <Input placeholder="Kunde suchen..." className="pl-9 bg-background/50 border-border/60" />
             </div>
           </div>
 

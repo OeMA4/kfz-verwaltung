@@ -48,12 +48,12 @@ async function getFahrzeuge() {
 }
 
 const kraftstoffConfig: Record<string, { label: string; color: string }> = {
-  benzin: { label: "Benzin", color: "bg-amber-100 text-amber-800" },
-  diesel: { label: "Diesel", color: "bg-gray-100 text-gray-800" },
-  elektro: { label: "Elektro", color: "bg-green-100 text-green-800" },
-  hybrid: { label: "Hybrid", color: "bg-blue-100 text-blue-800" },
-  plugin_hybrid: { label: "Plug-in Hybrid", color: "bg-cyan-100 text-cyan-800" },
-  gas: { label: "Gas/LPG", color: "bg-purple-100 text-purple-800" },
+  benzin: { label: "Benzin", color: "bg-amber-50 text-amber-700 border-amber-200" },
+  diesel: { label: "Diesel", color: "bg-slate-50 text-slate-700 border-slate-200" },
+  elektro: { label: "Elektro", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  hybrid: { label: "Hybrid", color: "bg-sky-50 text-sky-700 border-sky-200" },
+  plugin_hybrid: { label: "Plug-in Hybrid", color: "bg-teal-50 text-teal-700 border-teal-200" },
+  gas: { label: "Gas/LPG", color: "bg-violet-50 text-violet-700 border-violet-200" },
 }
 
 export default async function FahrzeugePage() {
@@ -96,8 +96,10 @@ export default async function FahrzeugePage() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Fahrzeuge gesamt</CardTitle>
-            <Car className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Fahrzeuge gesamt</CardTitle>
+            <div className="rounded-xl bg-slate-100 p-2">
+              <Car className="h-4 w-4 text-slate-600" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{fahrzeuge.length}</div>
@@ -108,8 +110,10 @@ export default async function FahrzeugePage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Kraftstoffarten</CardTitle>
-            <Fuel className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Kraftstoffarten</CardTitle>
+            <div className="rounded-xl bg-emerald-50 p-2">
+              <Fuel className="h-4 w-4 text-emerald-600" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{kraftstoffArten.length}</div>
@@ -118,10 +122,12 @@ export default async function FahrzeugePage() {
             </p>
           </CardContent>
         </Card>
-        <Card className={huFaellig.length > 0 ? "border-warning" : ""}>
+        <Card className={huFaellig.length > 0 ? "border-amber-200" : ""}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">HU bald fällig</CardTitle>
-            <Calendar className={`h-4 w-4 ${huFaellig.length > 0 ? "text-warning" : "text-muted-foreground"}`} />
+            <CardTitle className="text-sm font-medium text-muted-foreground">HU bald fällig</CardTitle>
+            <div className={`rounded-xl p-2 ${huFaellig.length > 0 ? "bg-amber-50" : "bg-slate-100"}`}>
+              <Calendar className={`h-4 w-4 ${huFaellig.length > 0 ? "text-amber-600" : "text-slate-600"}`} />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{huFaellig.length}</div>
@@ -130,10 +136,12 @@ export default async function FahrzeugePage() {
             </p>
           </CardContent>
         </Card>
-        <Card className={huUeberfaellig.length > 0 ? "border-destructive" : ""}>
+        <Card className={huUeberfaellig.length > 0 ? "border-red-200" : ""}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">HU überfällig</CardTitle>
-            <AlertTriangle className={`h-4 w-4 ${huUeberfaellig.length > 0 ? "text-destructive" : "text-muted-foreground"}`} />
+            <CardTitle className="text-sm font-medium text-muted-foreground">HU überfällig</CardTitle>
+            <div className={`rounded-xl p-2 ${huUeberfaellig.length > 0 ? "bg-red-50" : "bg-slate-100"}`}>
+              <AlertTriangle className={`h-4 w-4 ${huUeberfaellig.length > 0 ? "text-red-600" : "text-slate-600"}`} />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{huUeberfaellig.length}</div>
@@ -146,9 +154,9 @@ export default async function FahrzeugePage() {
 
       {/* HU Warnungen */}
       {huFaellig.length > 0 && (
-        <Card className={huUeberfaellig.length > 0 ? "border-destructive bg-destructive/5" : "border-warning bg-warning/5"}>
+        <Card className={huUeberfaellig.length > 0 ? "border-red-200 bg-red-50/30" : "border-amber-200 bg-amber-50/30"}>
           <CardHeader>
-            <CardTitle className={`flex items-center gap-2 ${huUeberfaellig.length > 0 ? "text-destructive" : "text-warning"}`}>
+            <CardTitle className={`flex items-center gap-2 ${huUeberfaellig.length > 0 ? "text-red-700" : "text-amber-700"}`}>
               <AlertTriangle className="h-5 w-5" />
               HU/AU Termine beachten
             </CardTitle>
@@ -161,7 +169,7 @@ export default async function FahrzeugePage() {
               {huFaellig.slice(0, 6).map((fz) => {
                 const isUeberfaellig = fz.naechsteHU && new Date(fz.naechsteHU) < heute
                 return (
-                  <div key={fz.id} className="flex items-center gap-3 rounded-lg border p-3">
+                  <div key={fz.id} className="flex items-center gap-3 rounded-xl border border-border/60 bg-card p-4 transition-colors hover:bg-background">
                     <div className="flex-1">
                       <p className="font-medium">{fz.kennzeichen}</p>
                       <p className="text-xs text-muted-foreground">
@@ -172,7 +180,7 @@ export default async function FahrzeugePage() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className={`font-bold ${isUeberfaellig ? "text-destructive" : "text-warning"}`}>
+                      <p className={`font-bold ${isUeberfaellig ? "text-red-600" : "text-amber-600"}`}>
                         {fz.naechsteHU && formatDate(fz.naechsteHU)}
                       </p>
                       <Badge variant={isUeberfaellig ? "destructive" : "warning"}>
@@ -203,7 +211,7 @@ export default async function FahrzeugePage() {
           <div className="mb-4 flex items-center gap-2">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Kennzeichen, Marke oder Kunde suchen..." className="pl-9" />
+              <Input placeholder="Kennzeichen, Marke oder Kunde suchen..." className="pl-9 bg-background/50 border-border/60" />
             </div>
           </div>
 
@@ -271,7 +279,7 @@ export default async function FahrzeugePage() {
                       </TableCell>
                       <TableCell>
                         {kraftstoff ? (
-                          <Badge className={kraftstoff.color}>
+                          <Badge variant="outline" className={kraftstoff.color}>
                             {kraftstoff.label}
                           </Badge>
                         ) : (

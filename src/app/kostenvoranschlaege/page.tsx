@@ -105,18 +105,22 @@ export default async function KostenvoranschlaegePage() {
       <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Entwürfe</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Entwürfe</CardTitle>
+            <div className="rounded-xl bg-slate-100 p-2">
+              <FileText className="h-4 w-4 text-slate-600" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{entwuerfe.length}</div>
             <p className="text-xs text-muted-foreground">noch nicht versendet</p>
           </CardContent>
         </Card>
-        <Card className={gesendet.length > 0 ? "border-warning" : ""}>
+        <Card className={gesendet.length > 0 ? "border-amber-200" : ""}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Offen</CardTitle>
-            <Send className={`h-4 w-4 ${gesendet.length > 0 ? "text-warning" : "text-muted-foreground"}`} />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Offen</CardTitle>
+            <div className={`rounded-xl p-2 ${gesendet.length > 0 ? "bg-amber-50" : "bg-slate-100"}`}>
+              <Send className={`h-4 w-4 ${gesendet.length > 0 ? "text-amber-600" : "text-slate-600"}`} />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{gesendet.length}</div>
@@ -127,11 +131,13 @@ export default async function KostenvoranschlaegePage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Akzeptiert</CardTitle>
-            <CheckCircle className="h-4 w-4 text-success" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Akzeptiert</CardTitle>
+            <div className="rounded-xl bg-emerald-50 p-2">
+              <CheckCircle className="h-4 w-4 text-emerald-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">{akzeptiert.length}</div>
+            <div className="text-2xl font-bold text-emerald-600">{akzeptiert.length}</div>
             <p className="text-xs text-muted-foreground">
               {formatCurrency(akzeptiert.reduce((sum, kv) => sum + kv.bruttoGesamt, 0))}
             </p>
@@ -139,11 +145,13 @@ export default async function KostenvoranschlaegePage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Abgelehnt</CardTitle>
-            <XCircle className="h-4 w-4 text-destructive" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Abgelehnt</CardTitle>
+            <div className="rounded-xl bg-red-50 p-2">
+              <XCircle className="h-4 w-4 text-red-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-destructive">{abgelehnt.length}</div>
+            <div className="text-2xl font-bold text-red-600">{abgelehnt.length}</div>
             <p className="text-xs text-muted-foreground">
               {formatCurrency(abgelehnt.reduce((sum, kv) => sum + kv.bruttoGesamt, 0))}
             </p>
@@ -151,8 +159,10 @@ export default async function KostenvoranschlaegePage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Akzeptanzrate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Akzeptanzrate</CardTitle>
+            <div className="rounded-xl bg-violet-50 p-2">
+              <TrendingUp className="h-4 w-4 text-violet-600" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{akzeptanzRate}%</div>
@@ -165,9 +175,9 @@ export default async function KostenvoranschlaegePage() {
 
       {/* Bald ablaufende KVs */}
       {baldAblaufend.length > 0 && (
-        <Card className="border-warning bg-warning/5">
+        <Card className="border-amber-200 bg-amber-50/30">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-warning">
+            <CardTitle className="flex items-center gap-2 text-amber-700">
               <AlertTriangle className="h-5 w-5" />
               Bald ablaufende Kostenvoranschläge
             </CardTitle>
@@ -178,7 +188,7 @@ export default async function KostenvoranschlaegePage() {
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {baldAblaufend.map((kv) => (
-                <div key={kv.id} className="flex items-center gap-3 rounded-lg border p-3">
+                <div key={kv.id} className="flex items-center gap-3 rounded-xl border border-border/60 bg-card p-4 transition-colors hover:bg-background">
                   <div className="flex-1">
                     <p className="font-medium">{kv.kvNummer}</p>
                     <p className="text-sm">{kv.titel}</p>
@@ -188,7 +198,7 @@ export default async function KostenvoranschlaegePage() {
                   </div>
                   <div className="text-right">
                     <p className="font-bold">{formatCurrency(kv.bruttoGesamt)}</p>
-                    <p className="text-xs text-warning font-medium">
+                    <p className="text-xs text-amber-600 font-medium">
                       bis {kv.gueltigBis && formatDate(kv.gueltigBis)}
                     </p>
                   </div>
@@ -216,7 +226,7 @@ export default async function KostenvoranschlaegePage() {
           </TabsList>
           <div className="relative max-w-sm">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="KV-Nr., Kunde oder Fahrzeug suchen..." className="pl-9" />
+            <Input placeholder="KV-Nr., Kunde oder Fahrzeug suchen..." className="pl-9 bg-background/50 border-border/60" />
           </div>
         </div>
 
